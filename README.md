@@ -39,11 +39,12 @@ The app uses the **Build Chatbot with Gemini API** Firebase Extension to power c
 
 ---
 
-## 📸 Screenshots (Add Yours)
+## 📸 Screenshots
 
 | Sign Up | Login | Chatroom | Chat | AI Bot |
-|--------|----------|------|--------|
-| ![](screenshots/signup.png) | ![](screenshots/login.png) | ![](screenshots/rooms.png) | ![](screenshots/chat.png) | ![](screenshots/bot.png) |
+|--------|----------|------|--------|--------|
+| <img src="screenshots/signup.png" width="250"/> | <img src="screenshots/login.png" width="250"/> | <img src="screenshots/rooms.png" width="250"/> | <img src="screenshots/chat.png" width="250"/> | <img src="screenshots/bot.png" width="250"/> |
+
 
 ---
 
