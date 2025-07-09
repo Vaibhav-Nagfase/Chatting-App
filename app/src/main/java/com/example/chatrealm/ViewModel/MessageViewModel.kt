@@ -62,12 +62,6 @@ class MessageViewModel : ViewModel() {
 
 
     fun loadMessages() {
-
-        // below condition helps to formate the previous messages of a sender that is entered in chat screen based on id that's an email of sender
-        if (_currentUser.value != null) {
-            Message(senderId = _currentUser.value!!.email)
-        }
-
         viewModelScope.launch {
             if (_roomId != null) {
                 messageRepository.getChatMessages(_roomId.value.toString())

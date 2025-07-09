@@ -1,6 +1,9 @@
 package com.example.chatrealm.screen
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,11 +11,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -22,50 +32,79 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.chatrealm.R
 import com.example.chatrealm.ViewModel.RoomViewModel
 import com.example.chatrealm.data.Room
 
 @Composable
 fun ChatRoomListScreen(
     roomViewModel: RoomViewModel = viewModel(),
-    onJoinClicked: (Room) -> Unit
+    onJoinClicked: (Room) -> Unit,
+    onBotClicked: () -> Unit
 ){
     val rooms by roomViewModel.rooms.observeAsState(emptyList())
     var showDialog by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text("Chat Rooms", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(16.dp))
 
-        // Display a list of chat rooms
-        LazyColumn {
-            items(rooms){room ->
-                RoomItem(room = room, onJoinClicked = {onJoinClicked(room)})
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        Image(
+            painter = painterResource(id = R.drawable.back_chat_room),
+            contentDescription = "Background Image",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.matchParentSize()
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Text("Chat Rooms", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LazyColumn {
+                items(rooms) { room ->
+                    RoomItem(room = room, onJoinClicked = { onJoinClicked(room) })
+                }
+            }
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            Button(
+                onClick = { showDialog = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Create Room")
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Button to create a new room
-        Button(
-            onClick = {
-                showDialog = true
-            },
-            modifier = Modifier.fillMaxWidth()
+        // FAB for Chatbot
+        FloatingActionButton(
+            onClick = { onBotClicked() },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
+            containerColor = Color.White  // Optional: for better contrast
         ) {
-            Text("Create Room")
+            Icon(
+                painter = painterResource(id = R.drawable.chatbot),
+                contentDescription = "Chatbot",
+                modifier = Modifier.size(71.dp),  // Match your icon's ideal size
+                tint = Color.Unspecified  // Don't apply tint to actual image
+            )
         }
+
     }
 
 
@@ -112,18 +151,34 @@ fun ChatRoomListScreen(
 }
 
 @Composable
-fun RoomItem(room: Room, onJoinClicked:(Room)->Unit) {
-    Row(
+fun RoomItem(room: Room, onJoinClicked:(Room)->Unit, roomViewModel:RoomViewModel = viewModel()) {
+
+    Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+            .fillMaxSize()
+            .padding(top = 8.dp, start = 8.dp, end = 8.dp, bottom = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
-        Text(text = room.name, fontSize = 16.sp, fontWeight = FontWeight.Normal)
-        OutlinedButton(
-            onClick = { onJoinClicked(room) }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Join")
+            Text(text = room.name, fontSize = 16.sp, fontWeight = FontWeight.Normal)
+
+            Row {
+                OutlinedButton(onClick = { onJoinClicked(room) }) {
+                    Text("Join")
+                }
+                Spacer(modifier = Modifier.padding(4.dp))
+                IconButton(onClick = { roomViewModel.deleteRoom(room.id) }) {
+                    Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Room")
+                }
+            }
         }
+
     }
+
 }

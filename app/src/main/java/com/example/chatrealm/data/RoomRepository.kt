@@ -22,4 +22,25 @@ class RoomRepository(private val firestore: FirebaseFirestore) {
     } catch (e: Exception) {
         Result.Error(e)
     }
+
+    suspend fun getRoomById(roomId: String): Result<Room> = try {
+        val document = firestore.collection("rooms").document(roomId).get().await()
+        val room = document.toObject(Room::class.java)?.copy(id = document.id)
+        if (room != null) {
+            Result.Success(room)
+        } else {
+            Result.Error(Exception("Room not found"))
+        }
+    } catch (e: Exception) {
+        Result.Error(e)
+    }
+
+
+    suspend fun deleteRoom(roomId: String): Result<Unit> = try {
+        firestore.collection("rooms").document(roomId).delete().await()
+        Result.Success(Unit)
+    } catch (e: Exception) {
+        Result.Error(e)
+    }
+
 }

@@ -20,6 +20,10 @@ class RoomViewModel : ViewModel() {
     private val _rooms = MutableLiveData<List<Room>>()
     val rooms: LiveData<List<Room>> get() = _rooms
 
+    private val _roomName = MutableLiveData<String>()
+    val roomName: LiveData<String> get() = _roomName
+
+
     private val roomRepository: RoomRepository
     init {
         roomRepository = RoomRepository(Injection.instance())
@@ -43,6 +47,30 @@ class RoomViewModel : ViewModel() {
                 is Success -> _rooms.value = result.data
                 is Error -> {
 
+                }
+            }
+        }
+    }
+
+    fun loadRoomName(roomId: String) {
+        viewModelScope.launch {
+            when (val result = roomRepository.getRoomById(roomId)) {
+                is Result.Success -> _roomName.value = result.data.name
+                is Result.Error -> _roomName.value = "Unknown Room"
+            }
+        }
+    }
+
+
+    fun deleteRoom(roomId: String) {
+        viewModelScope.launch {
+            when (roomRepository.deleteRoom(roomId)) {
+                is Success -> {
+                    // Reload the rooms list
+                    loadRooms()
+                }
+                is Error -> {
+                    // Optionally log or show an error message
                 }
             }
         }

@@ -104,8 +104,8 @@ fun SignUpScreen(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun SignupPreview() {
-//    SignUpScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun SignupPreview() {
+////    SignUpScreen()
+//}

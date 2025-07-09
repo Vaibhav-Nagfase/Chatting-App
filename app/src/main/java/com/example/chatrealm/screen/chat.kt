@@ -12,12 +12,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -31,12 +34,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chatrealm.R
 import com.example.chatrealm.ViewModel.MessageViewModel
+import com.example.chatrealm.ViewModel.RoomViewModel
 import com.example.chatrealm.data.Message
 import java.time.Instant
 import java.time.LocalDateTime
@@ -48,27 +54,64 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ChatScreen(
     roomId: String,
-    messageViewModel:
-    MessageViewModel = viewModel(),
+    messageViewModel: MessageViewModel = viewModel(),
+    roomViewModel: RoomViewModel = viewModel()
     ) {
     val messages by messageViewModel.messages.observeAsState(emptyList())
+    val currentUser by messageViewModel.currentUser.observeAsState()
     messageViewModel.setRoomId(roomId)
+
+    val roomName by roomViewModel.roomName.observeAsState("Loading...")
+    // Load the room name when this screen is shown
+    roomViewModel.loadRoomName(roomId)
+
     val text = remember { mutableStateOf("") }
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(start = 16.dp, bottom = 16.dp, end = 16.dp, top = 4.dp)
     ) {
-        // Display the chat messages
-        LazyColumn(
-            modifier = Modifier.weight(1f)
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp),
+            shape = RoundedCornerShape(8.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = colorResource(id = R.color.teal_200)
+            )
         ) {
-            items(messages) { message ->
-                ChatMessageItem(message =  message.copy(isSentByCurrentUser
-                = message.senderId == messageViewModel.currentUser.value?.email)
-                )
+            Text(
+                text = roomName,
+                fontSize = 20.sp,
+                color = colorResource(id = R.color.grey),
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth().padding(16.dp),
+                textAlign = TextAlign.Center
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Display the chat messages
+        if (currentUser != null) {
+            LazyColumn(
+                modifier = Modifier.weight(1f)
+            ) {
+                items(messages) { message ->
+                    ChatMessageItem(
+                        message = message.copy(
+                            isSentByCurrentUser = message.senderId == currentUser?.email
+                        )
+                    )
+                }
             }
         }
+
 
         // Chat input field and send icon
         Row(
@@ -78,15 +121,25 @@ fun ChatScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            BasicTextField(
-                value = text.value,
-                onValueChange = { text.value = it },
-                textStyle = TextStyle(color = Color.White, fontSize = 16.sp),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp).background(color = colorResource(R.color.grey)).height(30.dp)
+            Box(
+                modifier = Modifier.weight(1f)
+                    .background(
+                        color = Color.Gray,
+                        shape = RoundedCornerShape(12.dp) // 👈 corner radius here
+                    )
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
 
-            )
+            ) {
+                BasicTextField(
+                    value = text.value,
+                    onValueChange = { text.value = it },
+                    textStyle = TextStyle(color = Color.White, fontSize = 22.sp),
+                    modifier = Modifier.fillMaxWidth().padding(8.dp)
+
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
 
             IconButton(
                 onClick = {

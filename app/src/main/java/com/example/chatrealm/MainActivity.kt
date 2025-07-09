@@ -22,6 +22,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.chatrealm.ViewModel.AuthViewModel
+import com.example.chatrealm.screen.ChatBotScreen
 import com.example.chatrealm.screen.ChatRoomListScreen
 import com.example.chatrealm.screen.ChatScreen
 import com.example.chatrealm.screen.LoginScreen
@@ -74,8 +75,12 @@ fun NavigationGraph(
         }
 
         composable(Screen.ChatRoomsScreen.route) {
-            ChatRoomListScreen {
-                navController.navigate("${Screen.ChatScreen.route}/${it.id}")
+            ChatRoomListScreen(
+                onJoinClicked =  {
+                    navController.navigate("${Screen.ChatScreen.route}/${it.id}")
+                }
+            ){
+                navController.navigate(Screen.ChatBotScreen.route)
             }
         }
 
@@ -84,6 +89,11 @@ fun NavigationGraph(
                 .arguments?.getString("roomId") ?: ""
             ChatScreen(roomId = roomId)
         }
+
+        composable(Screen.ChatBotScreen.route) {
+            ChatBotScreen()
+        }
+
 
     }
 }
